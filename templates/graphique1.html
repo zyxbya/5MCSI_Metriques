@@ -1,0 +1,48 @@
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Metrique</title>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+      // Chargement de Google Charts
+      google.charts.load('current', { packages: ['corechart'] });
+      google.charts.setOnLoadCallback(drawChart);
+
+      function drawChart() {
+        // Récupération des données depuis l'API /tawarano/
+        fetch('/tawarano/')
+          .then(response => response.json())
+          .then(data => {
+            // Création du DataTable
+            var dataTable = new google.visualization.DataTable();
+            dataTable.addColumn('string', 'Date');
+            dataTable.addColumn('number', 'Valeur');
+
+            data.results.forEach(entry => {
+              var date = new Date(entry.Jour * 1000); // si Jour est un timestamp en secondes
+              dataTable.addRow([date.toLocaleDateString(), entry.temp]);
+            });
+
+            // Options du graphique
+            var options = {
+              title: 'Évolution des températures de la ville de Tawarano',
+              curveType: 'function',
+              legend: { position: 'bottom' }
+            };
+
+            // Création et affichage du graphique (ligne)
+            var chart = new google.visualization.Histogram(
+              document.getElementById('chart_div')
+            );
+            chart.draw(dataTable, options);
+          })
+          .catch(error => {
+            console.error('Erreur lors de la récupération des données :', error);
+          });
+      }
+    </script>
+  </head>
+  <body>
+    <div id="chart_div" style="width: 900px; height: 500px;"></div>
+  </body>
+</html>
