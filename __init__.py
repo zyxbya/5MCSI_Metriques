@@ -62,7 +62,7 @@ def commits_data():
             "count": minute_counter.get(minute, 0)
         })
 
-    return jsonify(results=results
+    return jsonify(results=results)
 
 @app.route("/commits/")
 def commits():
