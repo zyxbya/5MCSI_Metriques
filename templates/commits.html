@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Commits par minute</title>
+    <script
+      type="text/javascript"
+      src="https://www.gstatic.com/charts/loader.js"
+    ></script>
+  </head>
+  <body>
+    <h2 style="text-align:center;">Activité des commits (minute par minute)</h2>
+    <div id="chart_div" style="width: 900px; height: 500px; margin: 0 auto;"></div>
+
+    <script type="text/javascript">
+      google.charts.load("current", { packages: ["corechart"] });
+      google.charts.setOnLoadCallback(drawChart);
+
+      function drawChart() {
+        // On récupère les données depuis notre API Flask /commits_data/
+        fetch("/commits_data/")
+          .then((response) => response.json())
+          .then((data) => {
+            var dataTable = new google.visualization.DataTable();
+            dataTable.addColumn("string", "Minute");
+            dataTable.addColumn("number", "Nombre de commits");
+
+            data.results.forEach((entry) => {
+              dataTable.addRow([entry.minute.toString(), entry.count]);
+            });
+
+            var options = {
+              title: "Nombre de commits par minute (sur les données GitHub)",
+              legend: { position: "none" },
+              hAxis: { title: "Minute (0 à 59)" },
+              vAxis: { title: "Nombre de commits" },
+              bar: { groupWidth: "80%" }
+            };
+
+            var chart = new google.visualization.ColumnChart(
+              document.getElementById("chart_div")
+            );
+            chart.draw(dataTable, options);
+          })
+          .catch((error) => {
+            console.error("Erreur lors de la récupération des données :", error);
+          });
+      }
+    </script>
+  </body>
+</html>
