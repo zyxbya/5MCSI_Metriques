@@ -1,0 +1,52 @@
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Histogramme Tawarano</title>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+  </head>
+  <body>
+    <h2>Histogramme des températures - Tawarano</h2>
+    <div id="chart_div" style="width: 900px; height: 500px;"></div>
+
+    <script type="text/javascript">
+      // Chargement de la librairie Google Charts
+      google.charts.load("current", { packages: ["corechart"] });
+      google.charts.setOnLoadCallback(drawChart);
+
+      function drawChart() {
+        // On récupère les données depuis notre API Python /tawarano/
+        fetch("/tawarano/")
+          .then((response) => response.json())
+          .then((data) => {
+            // Création du DataTable pour Google Charts
+            var dataTable = new google.visualization.DataTable();
+            dataTable.addColumn("string", "Date");
+            dataTable.addColumn("number", "Température (°C)");
+
+            // On parcourt les résultats renvoyés par l'API
+            data.results.forEach((entry) => {
+              var date = new Date(entry.Jour * 1000); // Timestamp → Date
+              dataTable.addRow([date.toLocaleDateString(), entry.temp]);
+            });
+
+            // Options de l'histogramme
+            var options = {
+              title: "Histogramme des températures à Tawarano",
+              legend: { position: "none" },
+              hAxis: { title: "Date" },
+              vAxis: { title: "Température (°C)" }
+            };
+
+            // Création de l'histogramme
+            var chart = new google.visualization.Histogram(
+              document.getElementById("chart_div")
+            );
+            chart.draw(dataTable, options);
+          })
+          .catch((error) => {
+            console.error("Erreur lors de la récupération des données :", error);
+          });
+      }
+    </script>
+  </body>
+</html>
